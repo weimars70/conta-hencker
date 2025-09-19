@@ -51,7 +51,12 @@ export class DatabaseService {
       }
       if (filters.filter) {
         const searchTerm = `%${filters.filter}%`;
-        query = query.or(`(codigo::text).ilike.${searchTerm},nombre.ilike.${searchTerm},abreviado.ilike.${searchTerm}`);
+        // Configurar búsqueda específica por tabla
+        if (tabla === 'nits') {
+          query = query.or(`nit.ilike.${searchTerm},nombre.ilike.${searchTerm}`);
+        } else {
+          query = query.or(`(codigo::text).ilike.${searchTerm},nombre.ilike.${searchTerm},abreviado.ilike.${searchTerm}`);
+        }
       }
       const { data, error } = await query;
       if (error) {
@@ -72,8 +77,14 @@ export class DatabaseService {
 
       if (filters.filter) {
         const searchTerm = `%${filters.filter}%`;
-        values.push(searchTerm, searchTerm, searchTerm);
-        conditions.push(`(CAST("codigo" AS TEXT) ILIKE \$${values.length - 2} OR "nombre" ILIKE \$${values.length - 1} OR "abreviado" ILIKE \$${values.length})`);
+        // Configurar búsqueda específica por tabla
+        if (tabla === 'nits') {
+          values.push(searchTerm, searchTerm);
+          conditions.push(`("nit" ILIKE \$${values.length - 1} OR "nombre" ILIKE \$${values.length})`);
+        } else {
+          values.push(searchTerm, searchTerm, searchTerm);
+          conditions.push(`(CAST("codigo" AS TEXT) ILIKE \$${values.length - 2} OR "nombre" ILIKE \$${values.length - 1} OR "abreviado" ILIKE \$${values.length})`);
+        }
       }
 
       if (conditions.length > 0) {

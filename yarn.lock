@@ -1423,6 +1423,11 @@ chownr@^2.0.0:
   resolved "https://registry.npmjs.org/chownr/-/chownr-2.0.0.tgz"
   integrity sha512-bIomtDF5KGpdogkLd9VspvFzk9KfpyyGlS8YFVZl7TGPBHL5snIOnxeshwVgPteQ9b4Eydl+pVbIyE1DcvCWgQ==
 
+claude@^0.1.1:
+  version "0.1.1"
+  resolved "https://registry.npmjs.org/claude/-/claude-0.1.1.tgz"
+  integrity sha512-j7oSibqQdIODNhkI1sEJzHMiPsF43L/GqNbcA+eDDyGM10+x2sH9NW/PK6vM3z0J2tLDKMBcc5ZjVaoRinhuCA==
+
 clean-stack@^2.0.0:
   version "2.2.0"
   resolved "https://registry.npmjs.org/clean-stack/-/clean-stack-2.2.0.tgz"

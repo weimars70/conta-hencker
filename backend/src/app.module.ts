@@ -7,6 +7,7 @@ import { AccesosModule } from './accesos/accesos.module';
 import { GenericCaptureModule } from './generic-capture/generic-capture.module';
 import { PdfModule } from './pdf/pdf.module';
 import { EmpresasModule } from './empresas/empresas.module';
+import { PlanContableModule } from './plan-contable/plan-contable.module';
 
 @Module({
   imports: [
@@ -21,6 +22,7 @@ import { EmpresasModule } from './empresas/empresas.module';
     GenericCaptureModule,
     PdfModule,
     EmpresasModule,
+    PlanContableModule,
   ],
 })
 export class AppModule {}

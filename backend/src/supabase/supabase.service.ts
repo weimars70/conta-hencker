@@ -10,17 +10,11 @@ export class SupabaseService {
     const supabaseUrl = this.configService.get('SUPABASE_URL');
     const supabaseKey = this.configService.get('SUPABASE_SERVICE_ROLE_KEY') || this.configService.get('SUPABASE_ANON_KEY');
     
-    console.log('🔧 Configurando Supabase client...');
-    console.log('🌐 URL:', supabaseUrl);
-    console.log('🔑 Key disponible:', !!supabaseKey);
-    console.log('🔑 Key length:', supabaseKey?.length);
-    
     if (!supabaseUrl || !supabaseKey) {
       throw new Error('Missing Supabase configuration. Check SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY environment variables.');
     }
     
     this.supabase = createClient(supabaseUrl, supabaseKey);
-    console.log('✅ Supabase client configurado exitosamente');
   }
 
   getClient(): SupabaseClient {

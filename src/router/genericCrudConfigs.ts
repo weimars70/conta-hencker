@@ -30,5 +30,17 @@ export const genericCrudConfigs = {
     icon: 'work',
     formFields: baseFormFields,
     gridColumns: baseGridColumns
+  },
+  fuente_contable: {
+    title: 'Fuente Contable',
+    icon: 'account_balance',
+    formFields: baseFormFields,
+    gridColumns: baseGridColumns
+  },
+  centro_costos: {
+    title: 'Centro de Costos',
+    icon: 'business_center',
+    formFields: baseFormFields,
+    gridColumns: baseGridColumns
   }
 };

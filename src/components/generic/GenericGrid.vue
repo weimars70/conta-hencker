@@ -194,6 +194,24 @@ defineExpose({
              </q-td>
            </template>
 
+           <template v-slot:body-cell-email="props">
+             <q-td :props="props">
+               <div class="email-content">
+                 <q-icon name="email" class="q-mr-xs" color="blue" size="sm" />
+                 {{ props.row.email }}
+               </div>
+             </q-td>
+           </template>
+
+           <template v-slot:body-cell-telefono="props">
+             <q-td :props="props">
+               <div class="telefono-content">
+                 <q-icon name="phone" class="q-mr-xs" color="green" size="sm" />
+                 {{ props.row.telefono }}
+               </div>
+             </q-td>
+           </template>
+
            <template v-slot:body-cell-activo="props">
              <q-td :props="props">
                <q-chip

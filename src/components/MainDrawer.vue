@@ -4,7 +4,6 @@ import { useRouter } from 'vue-router';
 import { useQuasar, Loading } from 'quasar';
 import { useAuthStore } from '../stores/auth';
 import { useTabsStore } from '../stores/tabs';
-import { syncService } from '../services/sync/sync.service';
 
 const props = defineProps<{
   modelValue: boolean
@@ -19,7 +18,6 @@ const $q = useQuasar();
 const authStore = useAuthStore();
 const tabsStore = useTabsStore();
 const miniState = ref(false);
-const syncing = ref(false);
 const searchQuery = ref('');
 
 const menuItems = [
@@ -49,6 +47,14 @@ const menuItems = [
         route: '/empresas',
         closable: true,
         category: 'configuracion'
+      },
+
+      {
+        icon: 'account_tree',
+        label: 'PUC',
+        route: '/puc2',
+        closable: true,
+        category: 'configuracion'
       }
     ]
   },
@@ -76,6 +82,20 @@ const menuItems = [
         icon: 'work',
         label: 'Cargos',
         route: '/cargos',
+        closable: true,
+        category: 'maestros'
+      },
+      {
+        icon: 'account_balance',
+        label: 'Fuente Contable',
+        route: '/fuente_contable',
+        closable: true,
+        category: 'maestros'
+      },
+      {
+        icon: 'business_center',
+        label: 'Centro de Costos',
+        route: '/centro_costos',
         closable: true,
         category: 'maestros'
       }
@@ -145,6 +165,7 @@ const toggleMiniState = () => {
 const clearSearch = () => {
   searchQuery.value = '';
 };
+
 </script>
 
 <template>
@@ -259,13 +280,6 @@ const clearSearch = () => {
           </q-item>
         </template>
 
-        <!-- Sync Button -->
-        <!-- <q-separator class="sync-separator" />
-        
-        <q-item 
-          clickable 
-          v-ripple 
-         
       </q-list>
     </q-scroll-area>
   </q-drawer>

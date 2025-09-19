@@ -13,8 +13,10 @@ export class GenericCaptureController {
   }
 
   @Get()
-  findAll(@Query('tabla') tabla: string, @Query('empresa') empresa: string, @Query('filter') filter?: string) {
-    return this.genericCaptureService.findAll(tabla, empresa, filter);
+  findAll(@Query('tabla') tabla: string, @Query('empresa') empresa: string, @Query('filter') filter?: string, @Query('search') search?: string) {
+    // Usar 'search' si está presente, sino usar 'filter'
+    const searchTerm = search || filter;
+    return this.genericCaptureService.findAll(tabla, empresa, searchTerm);
   }
 
   @Get(':codigo')

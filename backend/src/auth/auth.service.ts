@@ -23,7 +23,6 @@ export class AuthService {
     try {
       const usuario = await this.usuariosService.findByEmailWithPassword(email);
       if (!usuario) {
-        console.log('❌ AUTH SERVICE - Usuario no encontrado');
         return null;
       }
       // Comparación directa de contraseñas (sin hash por ahora)
@@ -41,7 +40,6 @@ export class AuthService {
   }
 
   async login(user: any) {
-    console.log('user:::', user);
     try {
       
       const payload = { 
@@ -76,8 +74,7 @@ export class AuthService {
             FROM view_empresas_usuarios 
             WHERE usuario_id = $1 AND activo = true
           `;
-          console.log('query:::', query);
-          console.log('user.id:::', user.id);
+
           result = await pgPool.query(query, [user.id]);
         }
         
@@ -90,14 +87,14 @@ export class AuthService {
           centro_costos: item.centro_costos
         }));
         
-        console.log(`✅ AUTH SERVICE - Empresas obtenidas para usuario ${user.id}:`, empresas.length);
+
       } catch (error) {
         console.error('❌ AUTH SERVICE - Error al obtener empresas:', error);
         // Si hay error, devolver array vacío en lugar de fallar
         empresas = [];
       }
       
-      console.log('✅ AUTH SERVICE - Token generado exitosamente');
+
       
       return {
         access_token,

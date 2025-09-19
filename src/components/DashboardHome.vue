@@ -5,22 +5,6 @@ import { useAuthStore } from '../stores/auth';
 const authStore = useAuthStore();
 
 const stats = ref([
-  // {
-    title: 'Usuarios Activos',
-    value: '1,234',
-    icon: 'people',
-    color: 'primary',
-    trend: '+12%',
-    trendUp: true
-  },
-  // {
-    title: 'Empresas',
-    value: '5',
-    icon: 'business',
-    color: 'secondary',
-    trend: '+2',
-    trendUp: true
-  },
   {
     title: 'Accesos Configurados',
     value: '89',

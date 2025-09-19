@@ -81,6 +81,36 @@ const routes = [
           formFields: genericCrudConfigs.cargos.formFields,
           gridColumns: genericCrudConfigs.cargos.gridColumns
         }
+      },
+      {
+        path: '/fuente_contable',
+        component: () => import('../pages/GenericCrudPage.vue'),
+        meta: {
+          requiresAuth: true,
+          tableName: 'fuente_contable',
+          title: genericCrudConfigs.fuente_contable.title,
+          icon: genericCrudConfigs.fuente_contable.icon,
+          formFields: genericCrudConfigs.fuente_contable.formFields,
+          gridColumns: genericCrudConfigs.fuente_contable.gridColumns
+        }
+      },
+      {
+        path: '/centro_costos',
+        component: () => import('../pages/GenericCrudPage.vue'),
+        meta: {
+          requiresAuth: true,
+          tableName: 'centro_costos',
+          title: genericCrudConfigs.centro_costos.title,
+          icon: genericCrudConfigs.centro_costos.icon,
+          formFields: genericCrudConfigs.centro_costos.formFields,
+          gridColumns: genericCrudConfigs.centro_costos.gridColumns
+        }
+      },
+
+      {
+        path: '/puc2',
+        component: () => import('../pages/puc/Puc2Page.vue'),
+        meta: { requiresAuth: true, title: 'Plan Único de Cuentas 2', icon: 'account_tree' }
       }
     ]
   },
@@ -126,7 +156,10 @@ router.beforeEach((to, from, next) => {
         // New generic routes
         { icon: 'warehouse', label: 'Bodegas', route: '/bodegas', closable: true },
         { icon: 'star_half', label: 'Calificación Cliente', route: '/califica_cliente', closable: true },
-        { icon: 'work', label: 'Cargos', route: '/cargos', closable: true }
+        { icon: 'work', label: 'Cargos', route: '/cargos', closable: true },
+        { icon: 'account_balance', label: 'Fuente Contable', route: '/fuente_contable', closable: true },
+
+        { icon: 'account_tree', label: 'PUC 2', route: '/puc2', closable: true }
       ];
       
       const menuItem = menuItems.find(item => item.route === to.path);

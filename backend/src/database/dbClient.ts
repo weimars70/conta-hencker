@@ -1,34 +1,36 @@
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import { Pool } from 'pg';
-import { ConfigService } from '@nestjs/config';
 
-const configService = new ConfigService();
-
-console.log('Valor de USE_SUPABASE (raw):', configService.get<string>('USE_SUPABASE'));
-export const useSupabase = configService.get<string>('USE_SUPABASE') === 'true';
-console.log('Valor de useSupabase (evaluado):', useSupabase);
+export const useSupabase = process.env.USE_SUPABASE === 'true';
 
 let db: SupabaseClient | Pool;
 
 if (useSupabase) {
-  const supabaseUrl = configService.get<string>('SUPABASE_URL');
-  const supabaseKey = configService.get<string>('SUPABASE_KEY');
+  const supabaseUrl = process.env.SUPABASE_URL;
+  const supabaseKey = process.env.SUPABASE_ANON_KEY;
+  
+  if (!supabaseUrl || !supabaseKey) {
+    throw new Error('SUPABASE_URL and SUPABASE_ANON_KEY must be provided when USE_SUPABASE is true');
+  }
+  
   db = createClient(supabaseUrl, supabaseKey);
 } else {
-  const pgUser = configService.get<string>('PG_USER');
-  const pgHost = configService.get<string>('PG_HOST');
-  const pgDatabase = configService.get<string>('PG_DATABASE');
-  const pgPassword = configService.get<string>('PG_PASSWORD');
-  const pgPort = parseInt(configService.get<string>('PG_PORT'), 10); 
+  const pgUser = process.env.PG_USER;
+  const pgHost = process.env.PG_HOST;
+  const pgDatabase = process.env.PG_DATABASE;
+  const pgPassword = process.env.PG_PASSWORD;
+  const pgPort = parseInt(process.env.PG_PORT || '5432');
 
-  console.log('Valores de conexión a PostgreSQL:', { pgUser, pgHost, pgDatabase, pgPassword, pgPort });
+  if (!pgUser || !pgHost || !pgDatabase || !pgPassword) {
+    throw new Error('PostgreSQL environment variables must be provided when USE_SUPABASE is false');
+  }
 
   db = new Pool({
-    user: process.env.PG_USER,
-    host: process.env.PG_HOST,
-    database: process.env.PG_DATABASE,
-    password: process.env.PG_PASSWORD,
-    port: parseInt(process.env.PG_PORT, 10),
+    user: pgUser,
+    host: pgHost,
+    database: pgDatabase,
+    password: pgPassword,
+    port: pgPort,
   });
 }
 

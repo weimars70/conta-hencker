@@ -25,23 +25,18 @@ export class UsuariosService {
   ) {}
 
   async loginUser(email: string, password: string) {
-    console.log('🔐 LOGIN - Validando usuario:', email);
     
     // Usar el método validateUser existente
     const user = await this.findByEmailWithPassword(email);
     
     if (!user) {
-      console.log('❌ LOGIN - Usuario no encontrado');
       return null;
     }
     
     // Validar contraseña (comparación directa por ahora)
     if (user.clave_hash === password) {
-      console.log('✅ LOGIN - Contraseña válida');
       return user;
     }
-    
-    console.log('❌ LOGIN - Contraseña inválida');
     return null;
   }
   
@@ -49,8 +44,7 @@ export class UsuariosService {
     try {
       const { page = 1, limit = 10, nombre = '', email = '', telefono = '', activo } = query;
 
-      console.log('🔍 Buscando usuarios con query:', query);
-      console.log('🔍 Filtro activo recibido:', activo, 'tipo:', typeof activo);
+
 
       this.logger.log('📊 Usando DatabaseService para obtener usuarios');
       let queryText = 'SELECT id, nombre, email, telefono, activo FROM usuarios';
@@ -101,8 +95,7 @@ export class UsuariosService {
         activo: user.activo === 1 || user.activo === true
       }));
 
-      //console.log('👥 Total usuarios en BD:', allUsers.length);
-     // console.log('📋 Usuarios encontrados:', allUsers);
+
 
       let filteredUsers = [...usersWithBooleanActivo];
 
@@ -126,7 +119,7 @@ export class UsuariosService {
       }
 
       if (activo !== undefined && activo !== null) {
-        console.log('🔍 Aplicando filtro activo:', activo);
+
         // Convertir el valor recibido a booleano de forma compatible
         let activoBoolean;
         if (typeof activo === 'string') {
@@ -139,7 +132,7 @@ export class UsuariosService {
           activoBoolean = Boolean(activo);
         }
 
-        console.log('🔍 Valor booleano convertido:', activoBoolean);
+
         filteredUsers = filteredUsers.filter(user => {
           // Normalizar el valor del usuario también
           let userActivo;
@@ -151,10 +144,10 @@ export class UsuariosService {
             userActivo = Boolean(user.activo);
           }
 
-          console.log(`🔍 Usuario ${user.id}: activo=${user.activo} (${typeof user.activo}) -> normalizado=${userActivo}, comparando con ${activoBoolean}`);
+
           return userActivo === activoBoolean;
         });
-        console.log('🔍 Usuarios después del filtro activo:', filteredUsers.length);
+
       }
 
       const total = filteredUsers.length;
@@ -178,7 +171,7 @@ export class UsuariosService {
         totalPages: Math.ceil(total / parseInt(limit))
       };
 
-      console.log('📤 Respuesta final:', JSON.stringify(response, null, 2));
+
 
       return response;
     } catch (error) {
