@@ -57,17 +57,17 @@ export class PlanContableService {
           vcon_nit: requiereNit || false,
           vnit: nit || '',
           vcon_fuente: fuente || false,
-          vfuente: fuenteSelect || null,
+          vfuente: fuenteSelect || 0,
           vcon_ctrc: centroCostos || false,
-          vcentro_costos: centroCostosSelect || null,
+          vcentro_costos: centroCostosSelect || 0,
           vcon_aplica: requiereFactura || false,
           vsdo_aplica: saldoFacturaCierre || false,
           vcon_cheque: cheque || false,
           vcon_rete: retencion || false,
-          vporcentaje: porcentajeRetencion || null,
+          vporcentaje: porcentajeRetencion || 0,
           vcon_comen: comentarios || false,
           vcon_concepto: concepto || false,
-          vbaseminima: baseMinimaRetencion || null,
+          vbaseminima: baseMinimaRetencion || 0,
           vactividad: actividad || 'N'
         });
         
@@ -99,17 +99,17 @@ export class PlanContableService {
           requiereNit || false,                      // vcon_nit
           nit || '',                                 // vnit
           fuente || false,                           // vcon_fuente
-          fuenteSelect || null,                      // vfuente
+          fuenteSelect || 0,                         // vfuente
           centroCostos || false,                     // vcon_ctrc
-          centroCostosSelect || null,                // vcentro_costos
+          centroCostosSelect || 0,                // vcentro_costos
           requiereFactura || false,                  // vcon_aplica
           saldoFacturaCierre || false,               // vsdo_aplica
           cheque || false,                           // vcon_cheque
           retencion || false,                        // vcon_rete
-          porcentajeRetencion || null,               // vporcentaje
+          porcentajeRetencion || 0,               // vporcentaje
           comentarios || false,                      // vcon_comen
           concepto || false,                         // vcon_concepto
-          baseMinimaRetencion || null,               // vbaseminima
+          baseMinimaRetencion || 0,               // vbaseminima
           actividad || 'N'                           // vactividad
         ];
         

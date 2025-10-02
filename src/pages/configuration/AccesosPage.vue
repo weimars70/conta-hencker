@@ -85,24 +85,89 @@ const fetchAccesos = async (props?: any) => {
     const page = props?.pagination?.page || pagination.value.page;
     const limit = props?.pagination?.rowsPerPage || pagination.value.rowsPerPage;
 
-    const response = await accesosService.getAll({
-      page,
-      limit,
-      ...filters.value
-    });
+    try {
+      console.log('🔍 Intentando cargar accesos con parámetros:', {
+        page,
+        limit,
+        filters: filters.value
+      });
+      
+      const response = await accesosService.getAll({
+        page,
+        limit,
+        ...filters.value
+      });
 
-    accesos.value = response.data;
-    total.value = response.total;
-    pagination.value.page = response.page;
-    pagination.value.rowsPerPage = response.limit;
-    pagination.value.rowsNumber = response.total;
+      console.log('✅ Respuesta del servicio:', response);
+      console.log('📊 Datos recibidos:', response.data);
+      console.log('📈 Total de registros:', response.total);
+
+      accesos.value = response.data;
+      total.value = response.total;
+      pagination.value.page = response.page;
+      pagination.value.rowsPerPage = response.limit;
+      pagination.value.rowsNumber = response.total;
+
+      $q.notify({
+        type: 'positive',
+        message: `Se cargaron ${response.data.length} accesos de la base de datos`
+      });
+    } catch (serviceError) {
+      console.warn('Error al cargar desde el servicio, usando datos de prueba:', serviceError);
+      
+      // Datos de prueba mientras se configura la base de datos
+      const datosEjemplo = [
+        {
+          empresa: '01',
+          usuario_id: 1,
+          nombre_usuario: 'Administrador',
+          nombre_empresa: 'HENCKER S.A.S.',
+          nivel: 'admin',
+          codigo: 1,
+          bodega: 1,
+          centro_costos: 1,
+          activo: true
+        },
+        {
+          empresa: '01',
+          usuario_id: 2,
+          nombre_usuario: 'Usuario Demo',
+          nombre_empresa: 'HENCKER S.A.S.',
+          nivel: 'user',
+          codigo: 2,
+          bodega: 1,
+          centro_costos: 2,
+          activo: true
+        },
+        {
+          empresa: '02',
+          usuario_id: 3,
+          nombre_usuario: 'Contador',
+          nombre_empresa: 'Empresa Demo',
+          nivel: 'user',
+          codigo: 3,
+          bodega: 2,
+          centro_costos: 1,
+          activo: false
+        }
+      ];
+
+      accesos.value = datosEjemplo;
+      total.value = datosEjemplo.length;
+      pagination.value.page = 1;
+      pagination.value.rowsPerPage = limit;
+      pagination.value.rowsNumber = datosEjemplo.length;
+
+      $q.notify({
+        type: 'info',
+        message: 'Mostrando datos de ejemplo. Configure la base de datos para datos reales.'
+      });
+    }
   } catch (error) {
-    console.error('Error fetching accesos:', error);
+    console.error('Error general en fetchAccesos:', error);
     $q.notify({
       type: 'negative',
-      message: error.response?.data?.message || 
-               error.message || 
-               'Error al cargar los accesos'
+      message: 'Error al cargar los accesos'
     });
   } finally {
     loading.value = false;
@@ -234,6 +299,46 @@ const clearFilters = () => {
   fetchAccesos();
 };
 
+const testConnection = async () => {
+  try {
+    console.log('🧪 Iniciando prueba de conexión directa...');
+    
+    // Importar supabase directamente
+    const { supabase } = await import('../../config/supabase');
+    
+    console.log('🔍 Cliente Supabase:', supabase);
+    
+    // Probar consulta simple
+    console.log('🔍 Probando consulta simple a tabla accesos...');
+    const { data, error, count } = await supabase
+      .from('accesos')
+      .select('*', { count: 'exact' })
+      .limit(5);
+    
+    console.log('📊 Resultado de prueba:', { data, error, count });
+    
+    if (error) {
+      console.error('❌ Error en prueba:', error);
+      $q.notify({
+        type: 'negative',
+        message: `Error de conexión: ${error.message}`
+      });
+    } else {
+      console.log('✅ Conexión exitosa!');
+      $q.notify({
+        type: 'positive',
+        message: `Conexión exitosa! Encontrados ${count || 0} registros. Ver consola para detalles.`
+      });
+    }
+  } catch (error) {
+    console.error('❌ Error en testConnection:', error);
+    $q.notify({
+      type: 'negative',
+      message: `Error: ${error.message}`
+    });
+  }
+};
+
 onMounted(() => {
   fetchAccesos();
 });
@@ -248,6 +353,12 @@ onMounted(() => {
         <h5 class="q-mt-none q-mb-none">Gestión de Accesos</h5>
         <div class="row q-gutter-sm">
           <ViewToggle v-model="viewMode" />
+          <q-btn
+            color="orange"
+            icon="bug_report"
+            label="Probar Conexión"
+            @click="testConnection"
+          />
           <q-btn
             color="primary"
             icon="add"

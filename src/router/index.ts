@@ -111,6 +111,11 @@ const routes = [
         path: '/puc2',
         component: () => import('../pages/puc/Puc2Page.vue'),
         meta: { requiresAuth: true, title: 'Plan Único de Cuentas 2', icon: 'account_tree' }
+      },
+      {
+        path: '/captura-contable',
+        component: () => import('../pages/contabilidad/CapturaContable.vue'),
+        meta: { requiresAuth: true, title: 'Captura Contable', icon: 'edit_note' }
       }
     ]
   },

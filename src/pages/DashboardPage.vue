@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { useAuthStore } from '../stores/auth';
+import { useMenuStore } from '../stores/menu';
 import { useRouter } from 'vue-router';
 import MainDrawer from '../components/MainDrawer.vue';
 import TabsBar from '../components/TabsBar.vue';
@@ -9,6 +10,7 @@ import { hashPassword } from '../utils/crypto';
 import ThemeSelector from '../components/generic/ThemeSelector.vue';
 
 const authStore = useAuthStore();
+const menuStore = useMenuStore();
 const router = useRouter();
 const $q = useQuasar();
 const leftDrawerOpen = ref(true);
@@ -168,11 +170,15 @@ const switchCompany = async () => {
 };
 
 const navigateToModule = (module) => {
+  // Activar el módulo en el store del menú
+  menuStore.activateModule(module.name);
+  
   $q.notify({
     type: 'info',
-    message: `Navegando a ${module.name}`,
+    message: `Módulo ${module.name} activado. Menú actualizado.`,
     timeout: 2000
   });
+  
   // Aquí puedes agregar la lógica de navegación cuando tengas las rutas
   // router.push(module.route);
 };

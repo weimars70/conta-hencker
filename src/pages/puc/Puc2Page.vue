@@ -28,6 +28,7 @@
                 outlined
                 dense
                 class="form-input"
+                :readonly="isEditing"
                 @keyup.enter="validateAccountLength"
                 @blur="validateAccountLength"
               />
@@ -194,13 +195,15 @@
                 </div>
                 <div class="q-mb-sm">
                   <q-input
-                    v-model="form.baseMinimaRetencion"
+                    v-model="baseMinimaFormateada"
                     label="Base mínima"
                     outlined
                     dense
-                    type="number"
+                    type="text"
                     class="form-input-small"
                     :disable="!isRetentionFieldsEnabled"
+                    @update:model-value="formatBaseMinimaInput"
+                    placeholder="0"
                   />
                 </div>
               </div>
@@ -279,15 +282,13 @@
             bordered
             class="accounts-table"
             :pagination="{ rowsPerPage: 10 }"
-            selection="single"
-            v-model:selected="selected"
+
             :grid="$q.screen.lt.md"
             :card-class="'q-ma-sm'"
           >
             <!-- Slot para filtros en el header -->
             <template v-slot:header="props">
               <q-tr :props="props">
-                <q-th auto-width></q-th>
                 <q-th
                   v-for="col in props.cols.filter(c => c.name !== 'acciones')"
                   :key="col.name"
@@ -328,13 +329,9 @@
             <!-- Vista de tabla normal -->
             <template v-slot:body="props">
               <q-tr 
-                :props="props" 
-                :class="{ 'selected-row': isSelected(props.row) }"
-                @click="selectRow(props.row)"
+                :props="props"
               >
-                <q-td auto-width>
-                  <q-checkbox v-model="props.selected" />
-                </q-td>
+
                 <q-td key="cuenta" :props="props">
                   {{ props.row.cuenta }}
                 </q-td>
@@ -378,22 +375,14 @@
             <template v-slot:item="props">
               <div class="col-12 col-sm-6 col-md-4">
                 <q-card 
-                  class="account-card" 
-                  :class="{ 'selected-card': isSelected(props.row) }"
-                  @click="selectRow(props.row)"
-                  clickable
+                  class="account-card"
                 >
                   <q-card-section class="q-pa-md">
                     <div class="row items-center q-mb-sm">
                       <div class="col">
                         <div class="text-h6 text-primary">{{ props.row.cuenta }}</div>
                       </div>
-                      <div class="col-auto">
-                        <q-checkbox 
-                          v-model="props.selected" 
-                          @click.stop
-                        />
-                      </div>
+
                     </div>
                     
                     <div class="text-subtitle2 q-mb-sm text-grey-8">
@@ -448,6 +437,7 @@
 
 <script setup lang="ts">
 import { ref, reactive, computed, onMounted, watch } from 'vue'
+import { useQuasar } from 'quasar'
 import { useCuentasStore } from '../../stores/cuentas'
 import { useAuthStore } from '../../stores/auth'
 import { api } from '../../services/api'
@@ -455,6 +445,7 @@ import { api } from '../../services/api'
 // Store de Pinia
 const cuentasStore = useCuentasStore()
 const authStore = useAuthStore()
+const $q = useQuasar()
 
 // Formulario reactivo
 const form = reactive({
@@ -481,8 +472,6 @@ const form = reactive({
 })
 
 // Selección de fila
-const selected = ref([])
-
 // Control de visibilidad del formulario
 const showForm = ref(true)
 
@@ -512,6 +501,43 @@ const isAdvancedFieldsEnabled = computed(() => {
 const isRetentionFieldsEnabled = computed(() => {
   return form.retencion
 })
+
+// Variable reactiva para el valor formateado
+const baseMinimaFormateada = ref('')
+
+// Función para formatear en vivo (basada en el ejemplo proporcionado)
+function formatBaseMinimaInput(val) {
+  if (!val) {
+    baseMinimaFormateada.value = ''
+    form.baseMinimaRetencion = null
+    return
+  }
+
+  // Eliminar cualquier caracter que no sea número
+  let clean = val.replace(/\D/g, '')
+
+  // Convertir a número
+  let number = parseFloat(clean)
+
+  if (isNaN(number)) {
+    baseMinimaFormateada.value = ''
+    form.baseMinimaRetencion = null
+    return
+  }
+
+  // Formatear con separadores de miles (Colombia)
+  baseMinimaFormateada.value = new Intl.NumberFormat('es-CO').format(number)
+  form.baseMinimaRetencion = number
+}
+
+// Función para inicializar el valor formateado
+const updateBaseMinimaFormateada = () => {
+  if (form.baseMinimaRetencion !== null && form.baseMinimaRetencion !== undefined) {
+    baseMinimaFormateada.value = new Intl.NumberFormat('es-CO').format(form.baseMinimaRetencion)
+  } else {
+    baseMinimaFormateada.value = ''
+  }
+}
 
 // Funciones para cargar datos dinámicamente
 const loadFuenteOptions = async () => {
@@ -782,6 +808,13 @@ const saveRecord = async () => {
     
     console.log('Cuenta guardada exitosamente:', response.data)
     
+    // Mostrar notificación de éxito
+    $q.notify({
+      type: 'positive',
+      message: 'Cuenta guardada exitosamente',
+      position: 'center'
+    })
+    
     // Recargar datos
     await cuentasStore.loadPlanContable(empresa)
     
@@ -833,6 +866,13 @@ const updateRecord = async () => {
     }
 
     await api.post(`/plan-contable/registrar?empresa=${empresa}`, cuentaData)
+    
+    // Mostrar notificación de éxito
+    $q.notify({
+      type: 'positive',
+      message: 'Cuenta actualizada exitosamente',
+      position: 'center'
+    })
     
     // Recargar datos
     await cuentasStore.loadPlanContable(empresa)
@@ -933,6 +973,9 @@ const onReset = () => {
     baseMinimaRetencion: null
   })
   
+  // Limpiar campo formateado
+  baseMinimaFormateada.value = ''
+  
   // Resetear estado de edición
   isEditing.value = false
   currentEditingAccount.value = null
@@ -940,21 +983,6 @@ const onReset = () => {
 
 const cancelEdit = () => {
   onReset()
-}
-
-const selectRow = (row: any) => {
-  // Llenar formulario con datos de la fila seleccionada
-  Object.assign(form, {
-    cuenta: row.cuenta,
-    nombre: row.descripcion,
-    fuente: row.fuente === '1',
-    centroCostos: row.centroCostos === '1',
-    // ... otros campos según sea necesario
-  })
-}
-
-const isSelected = (row: any) => {
-  return form.cuenta === row.cuenta && form.cuenta !== ''
 }
 
 const editAccount = async (row: any) => {
@@ -1000,11 +1028,19 @@ const editAccount = async (row: any) => {
       
       isEditing.value = true
       currentEditingAccount.value = cuentaCompleta
+      
+      // Formatear el campo base mínima después de cargar los datos
+      updateBaseMinimaFormateada()
     }
   } catch (error) {
     console.error('Error al cargar los datos de la cuenta:', error)
     // Fallback al método anterior si hay error
-    selectRow(row)
+    Object.assign(form, {
+      cuenta: row.cuenta,
+      nombre: row.descripcion,
+      fuente: row.fuente === '1',
+      centroCostos: row.centroCostos === '1'
+    })
     isEditing.value = true
     currentEditingAccount.value = row
   }
@@ -1024,7 +1060,15 @@ const addSubAccount = (row: any) => {
 
 const copyAccount = (row: any) => {
   // Lógica para copiar cuenta
-  selectRow({ ...row, cuenta: '' })
+  Object.assign(form, {
+    cuenta: '',
+    nombre: row.descripcion,
+    fuente: row.fuente === '1',
+    centroCostos: row.centroCostos === '1'
+  })
+  
+  // Formatear el campo base mínima después de copiar los datos
+  updateBaseMinimaFormateada()
 }
 
 // Inicializar datos del store y cargar opciones dinámicas

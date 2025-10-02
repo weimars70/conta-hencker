@@ -8,6 +8,7 @@ import { GenericCaptureModule } from './generic-capture/generic-capture.module';
 import { PdfModule } from './pdf/pdf.module';
 import { EmpresasModule } from './empresas/empresas.module';
 import { PlanContableModule } from './plan-contable/plan-contable.module';
+import { ContabilidadModule } from './contabilidad/contabilidad.module';
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { PlanContableModule } from './plan-contable/plan-contable.module';
     PdfModule,
     EmpresasModule,
     PlanContableModule,
+    ContabilidadModule,
   ],
 })
 export class AppModule {}

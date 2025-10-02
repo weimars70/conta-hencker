@@ -1,5 +1,5 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestjs/common';
+import { ApiTags, ApiQuery } from '@nestjs/swagger';
 import { AccesosService } from './accesos.service';
 
 @ApiTags('accesos')
@@ -13,22 +13,34 @@ export class AccesosController {
   }
 
   @Get()
-  findAll() {
-    return this.accesosService.findAll();
+  @ApiQuery({ name: 'page', required: false, type: Number })
+  @ApiQuery({ name: 'limit', required: false, type: Number })
+  @ApiQuery({ name: 'empresa', required: false, type: String })
+  @ApiQuery({ name: 'usuario', required: false, type: String })
+  @ApiQuery({ name: 'nombre', required: false, type: String })
+  @ApiQuery({ name: 'email', required: false, type: String })
+  @ApiQuery({ name: 'activo', required: false, type: Boolean })
+  findAll(@Query() query: any) {
+    return this.accesosService.findAll(query);
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.accesosService.findOne(+id);
+  @Get('validate/:usuario/:empresa')
+  validateAccess(@Param('usuario') usuario: string, @Param('empresa') empresa: string) {
+    return this.accesosService.validateAccess(usuario, empresa);
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateAccesoDto: any) {
-    return this.accesosService.update(+id, updateAccesoDto);
+  @Get(':usuario')
+  findOne(@Param('usuario') usuario: string) {
+    return this.accesosService.findOne(usuario);
   }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.accesosService.remove(+id);
+  @Patch(':usuario')
+  update(@Param('usuario') usuario: string, @Body() updateAccesoDto: any) {
+    return this.accesosService.update(usuario, updateAccesoDto);
+  }
+
+  @Delete(':usuario')
+  remove(@Param('usuario') usuario: string) {
+    return this.accesosService.remove(usuario);
   }
 }

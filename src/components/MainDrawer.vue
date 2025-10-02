@@ -4,6 +4,7 @@ import { useRouter } from 'vue-router';
 import { useQuasar, Loading } from 'quasar';
 import { useAuthStore } from '../stores/auth';
 import { useTabsStore } from '../stores/tabs';
+import { useMenuStore } from '../stores/menu';
 
 const props = defineProps<{
   modelValue: boolean
@@ -17,103 +18,29 @@ const router = useRouter();
 const $q = useQuasar();
 const authStore = useAuthStore();
 const tabsStore = useTabsStore();
+const menuStore = useMenuStore();
 const miniState = ref(false);
 const searchQuery = ref('');
 
-const menuItems = [
-
-  {
-    icon: 'settings',
-    label: 'Configuración',
-    category: 'configuracion',
-    children: [
-      {
-        icon: 'people',
-        label: 'Accesos',
-        route: '/accesos',
-        closable: true,
-        category: 'configuracion'
-      },
-      {
-        icon: 'person',
-        label: 'Usuarios',
-        route: '/usuarios',
-        closable: true,
-        category: 'configuracion'
-      },
-      {
-        icon: 'business',
-        label: 'Empresas',
-        route: '/empresas',
-        closable: true,
-        category: 'configuracion'
-      },
-
-      {
-        icon: 'account_tree',
-        label: 'PUC',
-        route: '/puc2',
-        closable: true,
-        category: 'configuracion'
-      }
-    ]
-  },
-
-  {
-    icon: 'menu_book',
-    label: 'Maestros',
-    category: 'maestros',
-    children: [
-      {
-        icon: 'warehouse',
-        label: 'Bodegas',
-        route: '/bodegas',
-        closable: true,
-        category: 'maestros'
-      },
-      {
-        icon: 'star_half',
-        label: 'Calificación Cliente',
-        route: '/califica_cliente',
-        closable: true,
-        category: 'maestros'
-      },
-      {
-        icon: 'work',
-        label: 'Cargos',
-        route: '/cargos',
-        closable: true,
-        category: 'maestros'
-      },
-      {
-        icon: 'account_balance',
-        label: 'Fuente Contable',
-        route: '/fuente_contable',
-        closable: true,
-        category: 'maestros'
-      },
-      {
-        icon: 'business_center',
-        label: 'Centro de Costos',
-        route: '/centro_costos',
-        closable: true,
-        category: 'maestros'
-      }
-    ]
-  }
-];
+// Obtener elementos del menú desde el store
+const menuItems = computed(() => menuStore.getAllMenuItems());
 
 // Filtrar elementos del menú basado en la búsqueda
 const filteredMenuItems = computed(() => {
+  // Verificar que menuItems sea un array válido
+  if (!Array.isArray(menuItems.value) || menuItems.value.length === 0) {
+    return [];
+  }
+  
   if (!searchQuery.value.trim()) {
-    return menuItems;
+    return menuItems.value;
   }
 
   const query = searchQuery.value.toLowerCase().trim();
   
   const result = [];
   
-  menuItems.forEach(item => {
+  menuItems.value.filter(item => item && item.label && item.category).forEach(item => {
     // Buscar en el item principal
     const matchesMain = item.label.toLowerCase().includes(query);
     
@@ -146,14 +73,22 @@ const filteredMenuItems = computed(() => {
 });
 
 const navigateTo = (item: any) => {
-  tabsStore.addTab({
-    name: item.label,
-    route: item.route,
-    icon: item.icon,
-    closable: item.closable,
-  });
-  router.push(item.route);
-  emit('update:modelValue', false);
+  // Solo navegar si el elemento tiene una ruta definida
+  if (item.route) {
+    // Si es la opción de volver al menú principal, desactivar el módulo
+    if (item.label === 'Volver al Menú Principal') {
+      menuStore.deactivateModule();
+    }
+    
+    tabsStore.addTab({
+      name: item.label,
+      route: item.route,
+      icon: item.icon,
+      closable: item.closable,
+    });
+    router.push(item.route);
+    emit('update:modelValue', false);
+  }
 };
 
 const toggleMiniState = () => {
@@ -223,7 +158,7 @@ const clearSearch = () => {
           <div class="text-caption">No se encontraron resultados</div>
         </div>
 
-        <template v-for="item in filteredMenuItems" :key="item.route || item.label">
+        <template v-for="item in filteredMenuItems" :key="(item?.category || 'no-category') + '-' + (item?.label || 'no-label')">
           <!-- Menu item with children (expandable) -->
           <q-expansion-item
             v-if="item.children && item.children.length > 0"
@@ -266,7 +201,7 @@ const clearSearch = () => {
             v-else
             clickable
             v-ripple
-            :active="router.currentRoute.value.path === item.route"
+            :active="false"
             active-class="menu-item-active"
             class="menu-item"
             @click="navigateTo(item)"
