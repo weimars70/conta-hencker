@@ -49,7 +49,7 @@ export class AuthService {
       };
       
       const access_token = this.jwtService.sign(payload);
-    
+     console.log('user:::', user);
       let empresas = [];
       try {
         const dbClient = this.databaseService.getDbClient();
