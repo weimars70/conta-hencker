@@ -307,8 +307,15 @@ export class UsuariosService {
 
       if (useSupabase) {
         const supabase = dbClient as SupabaseClient;
-        const { data, error } = await supabase.from('usuarios').select('*').eq('email', email).single();
+        // Usar maybeSingle() para evitar error cuando no existe el usuario
+        const { data, error } = await supabase
+          .from('usuarios')
+          .select('*')
+          .eq('email', email)
+          .maybeSingle();
+
         if (error) {
+          console.error('❌ Error de Supabase en findByEmail:', error);
           throw error;
         }
         user = data;
@@ -318,7 +325,7 @@ export class UsuariosService {
         user = result.rows[0];
       }
 
-      return user;
+      return user || undefined;
     } catch (error) {
       console.error('❌ Error en findByEmail usuario:', error);
       throw new InternalServerErrorException('Error al buscar usuario por email');
@@ -333,8 +340,15 @@ export class UsuariosService {
 
       if (useSupabase) {
         const supabase = dbClient as SupabaseClient;
-        const { data, error } = await supabase.from('usuarios').select('*').eq('email', email).single();
+        // Usar maybeSingle() para evitar error cuando no existe el usuario
+        const { data, error } = await supabase
+          .from('usuarios')
+          .select('*')
+          .eq('email', email)
+          .maybeSingle();
+
         if (error) {
+          console.error('❌ Error de Supabase en findByEmailWithPassword:', error);
           throw error;
         }
         user = data;
@@ -344,7 +358,7 @@ export class UsuariosService {
         user = result.rows[0];
       }
 
-      return user;
+      return user || undefined;
     } catch (error) {
       console.error('❌ Error en findByEmailWithPassword usuario:', error);
       throw new InternalServerErrorException('Error al buscar usuario por email con contraseña');

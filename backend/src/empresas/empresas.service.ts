@@ -265,8 +265,15 @@ export class EmpresasService {
 
     if (useSupabase) {
       const supabase = dbClient as SupabaseClient;
-      const { data, error } = await supabase.from('empresas').select('id, empresa, nombre, nit').or(`empresa.eq.${empresa},nit.eq.${nit}`).single();
-      if (error && error.code !== 'PGRST116') { // PGRST116 means no rows found
+      // Usar maybeSingle() para evitar error cuando no existe
+      const { data, error } = await supabase
+        .from('empresas')
+        .select('id, empresa, nombre, nit')
+        .or(`empresa.eq.${empresa},nit.eq.${nit}`)
+        .maybeSingle();
+
+      if (error) {
+        console.error('❌ Error de Supabase en findByEmpresaOrNit:', error);
         throw error;
       }
       resultData = data;
@@ -288,8 +295,16 @@ export class EmpresasService {
 
     if (useSupabase) {
       const supabase = dbClient as SupabaseClient;
-      const { data, error } = await supabase.from('empresas').select('id, empresa, nombre, nit').or(`empresa.eq.${empresa},nit.eq.${nit}`).neq('id', id).single();
-      if (error && error.code !== 'PGRST116') { // PGRST116 means no rows found
+      // Usar maybeSingle() para evitar error cuando no existe
+      const { data, error } = await supabase
+        .from('empresas')
+        .select('id, empresa, nombre, nit')
+        .or(`empresa.eq.${empresa},nit.eq.${nit}`)
+        .neq('id', id)
+        .maybeSingle();
+
+      if (error) {
+        console.error('❌ Error de Supabase en findByEmpresaOrNitExcludingId:', error);
         throw error;
       }
       resultData = data;

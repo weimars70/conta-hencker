@@ -124,8 +124,15 @@ export class AccesosService {
 
       if (useSupabase) {
         const supabase = dbClient as SupabaseClient;
-        const { data, error } = await supabase.from('accesos').select('*').eq('usuario', usuario).single();
+        // Usar maybeSingle() para evitar error cuando no existe el acceso
+        const { data, error } = await supabase
+          .from('accesos')
+          .select('*')
+          .eq('usuario', usuario)
+          .maybeSingle();
+
         if (error) {
+          console.error('❌ Error de Supabase en findOne accesos:', error);
           throw error;
         }
         acceso = data;
