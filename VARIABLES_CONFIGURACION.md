@@ -195,3 +195,5 @@ Para verificar qué modo está activo:
 3. 📊 Supabase incluye features adicionales (realtime, auth, storage) que no están disponibles en PostgreSQL puro
 
 4. 🔄 Cambiar de modo requiere reiniciar tanto el frontend como el backend
+
+5. 🔐 El proyecto usa `bcryptjs` en lugar de `bcrypt` para compatibilidad con entornos que no permiten addons nativos (WebContainers, StackBlitz, etc.)

@@ -5,7 +5,7 @@ import { UsuariosService } from '../usuarios/usuarios.service';
 import { DatabaseService } from '../database/database.service';
 import { useSupabase } from '../database/dbClient';
 import { use } from 'passport';
-import bcrypt from 'bcrypt';
+import * as bcrypt from 'bcryptjs';
 import { SupabaseClient } from '@supabase/supabase-js';
 import { Pool } from 'pg';
 
