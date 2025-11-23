@@ -333,20 +333,25 @@ export class UsuariosService {
   }
 
   async findByEmailWithPassword(email: string): Promise<Usuario | undefined> {
-    try {
-      this.logger.log(`📊 Usando DatabaseService para buscar usuario por email con contraseña: ${email}`);
-      console.log('🔍 findByEmailWithPassword - Iniciando búsqueda');
-      console.log('  - Email a buscar:', email);
-      console.log('  - Usando Supabase:', useSupabase);
+    console.log('\n🔍 ========== FIND BY EMAIL WITH PASSWORD ==========');
+    console.log('📧 Email recibido:', email);
+    console.log('🔧 Usando Supabase:', useSupabase);
 
+    try {
       const dbClient = this.databaseService.getDbClient();
-      console.log('  - Cliente DB obtenido:', !!dbClient);
+
+      if (!dbClient) {
+        console.error('❌ No se pudo obtener el cliente de base de datos');
+        throw new InternalServerErrorException('Cliente de base de datos no disponible');
+      }
+
+      console.log('✅ Cliente DB obtenido correctamente');
 
       let user;
 
       if (useSupabase) {
-        console.log('  - Ejecutando query en Supabase...');
         const supabase = dbClient as SupabaseClient;
+        console.log('🔄 Ejecutando query en Supabase...');
 
         const { data, error } = await supabase
           .from('usuarios')
@@ -354,45 +359,55 @@ export class UsuariosService {
           .eq('email', email)
           .maybeSingle();
 
-        console.log('  - Supabase response:', {
-          tiene_data: !!data,
-          tiene_error: !!error,
-          error_message: error?.message,
-          error_details: error?.details,
-          error_hint: error?.hint,
-          error_code: error?.code
-        });
+        console.log('📊 Respuesta de Supabase:');
+        console.log('  ✓ Tiene data:', !!data);
+        console.log('  ✓ Tiene error:', !!error);
 
         if (error) {
-          console.error('❌ Error de Supabase en findByEmailWithPassword:', error);
-          console.error('❌ Error completo:', JSON.stringify(error, null, 2));
+          console.error('❌ Error de Supabase:', {
+            message: error.message,
+            details: error.details,
+            hint: error.hint,
+            code: error.code
+          });
           throw error;
         }
 
         if (data) {
-          console.log('✅ Usuario encontrado:', {
-            id: data.id,
-            email: data.email,
-            nombre: data.nombre,
-            tiene_clave_hash: !!data.clave_hash,
-            tipo_clave_hash: typeof data.clave_hash,
-            clave_hash_constructor: data.clave_hash?.constructor?.name
-          });
+          console.log('✅ Usuario encontrado en DB:');
+          console.log('  • ID:', data.id);
+          console.log('  • Email:', data.email);
+          console.log('  • Nombre:', data.nombre);
+          console.log('  • Tiene clave_hash:', !!data.clave_hash);
+          console.log('  • Tipo clave_hash:', typeof data.clave_hash);
+          console.log('  • Constructor:', data.clave_hash?.constructor?.name);
+
+          if (data.clave_hash) {
+            console.log('  • Longitud clave_hash:', data.clave_hash.length);
+            console.log('  • Primeros 30 chars:', data.clave_hash.substring(0, 30));
+          }
         } else {
-          console.log('⚠️ No se encontró usuario con ese email');
+          console.log('⚠️ No se encontró usuario con email:', email);
         }
 
         user = data;
       } else {
+        console.log('🔄 Ejecutando query en PostgreSQL directo...');
         const pgPool = dbClient as Pool;
         const result = await pgPool.query('SELECT * FROM usuarios WHERE email = $1', [email]);
         user = result.rows[0];
+        console.log('📊 Usuario encontrado en PG:', !!user);
       }
+
+      console.log('🏁 Retornando usuario:', !!user);
+      console.log('========== FIN FIND BY EMAIL WITH PASSWORD ==========\n');
 
       return user || undefined;
     } catch (error) {
-      console.error('❌ Error en findByEmailWithPassword usuario:', error);
-      console.error('❌ Stack completo:', error.stack);
+      console.error('\n❌ ========== ERROR EN FIND BY EMAIL WITH PASSWORD ==========');
+      console.error('Error:', error.message);
+      console.error('Stack:', error.stack);
+      console.error('========== FIN ERROR ==========\n');
       throw new InternalServerErrorException('Error al buscar usuario por email con contraseña');
     }
   }
