@@ -23,7 +23,7 @@ export class AuthService {
     try {
       console.log('🔍 validateUser - Buscando usuario con email:', email);
       const usuario = await this.usuariosService.findByEmailWithPassword(email);
-
+       console.log('usuario con email:', usuario);
       if (!usuario) {
         console.log('❌ validateUser - Usuario no encontrado');
         return null;
