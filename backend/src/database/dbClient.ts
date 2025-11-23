@@ -1,3 +1,4 @@
+import '../config';
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import { Pool } from 'pg';
 
