@@ -21,20 +21,49 @@ export class AuthService {
 
   async validateUser(email: string, password: string): Promise<any> {
     try {
+      console.log('🔍 validateUser - Buscando usuario con email:', email);
       const usuario = await this.usuariosService.findByEmailWithPassword(email);
+
       if (!usuario) {
+        console.log('❌ validateUser - Usuario no encontrado');
         return null;
       }
-      // Comparación directa de contraseñas (sin hash por ahora)
+
+      console.log('✅ validateUser - Usuario encontrado:', {
+        id: usuario.id,
+        email: usuario.email,
+        nombre: usuario.nombre,
+        tiene_clave_hash: !!usuario.clave_hash,
+        tipo_clave_hash: typeof usuario.clave_hash,
+        longitud_clave_hash: usuario.clave_hash ? usuario.clave_hash.length : 0
+      });
+
+      // Verificar que clave_hash existe y es un string
+      if (!usuario.clave_hash || typeof usuario.clave_hash !== 'string') {
+        console.error('❌ validateUser - clave_hash inválido:', {
+          clave_hash: usuario.clave_hash,
+          tipo: typeof usuario.clave_hash
+        });
+        return null;
+      }
+
+      console.log('🔐 validateUser - Comparando contraseñas...');
+      console.log('  - Password recibido:', password);
+      console.log('  - Hash almacenado (primeros 20 chars):', usuario.clave_hash.substring(0, 20));
+
       const esValida = await bcrypt.compare(password, usuario.clave_hash);
+
+      console.log('🔐 validateUser - Resultado comparación:', esValida);
+
       if (esValida) {
         const { clave_hash, ...result } = usuario;
         return result;
       }
-      
+
       return null;
     } catch (error) {
       console.error('❌ AUTH SERVICE - Error en validateUser:', error);
+      console.error('❌ Stack trace:', error.stack);
       return null;
     }
   }
