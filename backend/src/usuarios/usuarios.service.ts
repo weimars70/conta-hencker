@@ -28,7 +28,7 @@ export class UsuariosService {
     
     // Usar el método validateUser existente
     const user = await this.findByEmailWithPassword(email);
-    
+    console.log('user::::.', user);
     if (!user) {
       return null;
     }
